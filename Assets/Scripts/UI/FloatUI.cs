@@ -20,6 +20,7 @@ public class FloatUI : MonoBehaviour
             name = data.name;
             label.text = name;
         }
+
         slider.minValue = min;
         slider.maxValue = max;
     }

@@ -11,10 +11,21 @@ public class Body : MonoBehaviour
         Velocity
     }
 
-    public float Damping { get; set; } = 0;
-    public float Mass { get; set; } = 1;
+    public enum eType
+    {
+        Dynamic,
+        Kinematic, 
+        Static
+    }
 
     public Shape shape;
+
+    public eType Type;
+
+    public float Damping { get; set; } = 0;
+    public float InverseMass { get => (Mass == 0) ? 0 : 1 / Mass; }
+    public float Mass { get => shape.Mass; }
+    public float Restitution { get; set; } = 0.5f;
 
     public Vector2 Acceleration { get; set; } = Vector2.zero;
     public Vector2 Force { get; set; } = Vector2.zero;
@@ -23,6 +34,7 @@ public class Body : MonoBehaviour
 
     public void AddForce(Vector2 force, eForceMode forceMode = eForceMode.Force)
     {
+        if (Type != eType.Static) return;
         switch (forceMode)
         {
             case eForceMode.Force:
@@ -37,12 +49,11 @@ public class Body : MonoBehaviour
             default:
                 break;
         }
-
-
     }
 
     public void Step(float dt)
     {
-        Acceleration = new Vector2(0, -9.81f) + (Force / Mass);
+        if (Type != eType.Dynamic) return;
+        Acceleration = World.Instance.Gravity + (Force / Mass);
     }
 }
