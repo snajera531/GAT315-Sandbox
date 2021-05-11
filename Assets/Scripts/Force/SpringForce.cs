@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpringForce : MonoBehaviour
+public class SpringForce
 {
     public Body bodyA { get; set; } = null;
     public Body bodyB { get; set; } = null;
@@ -16,5 +16,10 @@ public class SpringForce : MonoBehaviour
 
         bodyA.AddForce(-force);
         bodyB.AddForce(force);
+    }
+
+    public void Draw()
+    {
+        Lines.Instance.AddLine(bodyA.Position, bodyB.Position, Color.magenta, 0.1f);
     }
 }

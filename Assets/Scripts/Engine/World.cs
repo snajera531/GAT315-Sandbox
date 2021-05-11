@@ -11,16 +11,21 @@ public class World : MonoBehaviour
     public FloatData gravity;
     public FloatData fixedFPS;
     public StringData fpsText;
+    public VectorField vectorField;
 
     static World instance;
     static public World Instance { get { return instance; } }
 
+    public AABB AABB { get => aabb; }
+    float fixedDeltaTime { get { return 1.0f / fixedFPS.value; } }
     public Vector2 Gravity { get { return new Vector2(0, gravity.value); } }
+
     public List<Body> Bodies { get; set; } = new List<Body>();
+    public List<Force> Forces { get; set; } = new List<Force>();
     public List<SpringForce> Springs { get; set; } = new List<SpringForce>();
 
+    AABB aabb;
     float timeAccumulator = 0;
-    float fixedDeltaTime { get { return 1.0f / fixedFPS.value; } }
     float fpsAverage = 0;
     float smoothing = 0.975f;
     Vector2 size;
@@ -29,6 +34,7 @@ public class World : MonoBehaviour
     {
         instance = this;
         size = Camera.main.ViewportToWorldPoint(Vector2.one);
+        aabb = new AABB(Vector2.zero, size * 2);
     }
 
     void Update()
@@ -38,11 +44,14 @@ public class World : MonoBehaviour
 
         fpsAverage = (fpsAverage * smoothing) + (fps * (1.0f - smoothing));
         fpsText.value = "FPS: " + fpsAverage.ToString("F1");
+        Springs.ForEach(spring => spring.Draw());
 
         if (!simulate.value) return;
 
         GravitationalForce.ApplyForce(Bodies, gravitation.value);
+        Forces.ForEach(force => Bodies.ForEach(body => force.ApplyForce(body)));
         Springs.ForEach(spring => spring.ApplyForce());
+        Bodies.ForEach(body => vectorField.ApplyForce(body));
 
         //Bodies.ForEach(body => body.shape.Color = Color.magenta);
 

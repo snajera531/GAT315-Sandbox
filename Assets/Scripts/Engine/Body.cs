@@ -23,7 +23,7 @@ public class Body : MonoBehaviour
     public eType Type;
 
     public float Damping { get; set; } = 0;
-    public float InverseMass { get => (Mass == 0) ? 0 : 1 / Mass; }
+    public float InverseMass { get => (Mass == 0 || Type == eType.Static) ? 0 : 1 / Mass; }
     public float Mass { get => shape.Mass; }
     public float Restitution { get; set; } = 0.5f;
 
@@ -54,6 +54,7 @@ public class Body : MonoBehaviour
     public void Step(float dt)
     {
         if (Type != eType.Dynamic) return;
-        Acceleration = World.Instance.Gravity + (Force / Mass);
+
+        Acceleration += World.Instance.Gravity + (Force / Mass);
     }
 }

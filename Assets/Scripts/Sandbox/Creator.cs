@@ -12,6 +12,8 @@ public class Creator : Action
     public FloatData size;
     public FloatData speed;
 
+    public override eActionType ActionType => eActionType.Connector;
+
     bool action { get; set; } = false;
     bool oneTime { get; set; } = false;
 
