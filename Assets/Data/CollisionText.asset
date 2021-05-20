@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba3889f089e6a86488bd42a368660f4b, type: 3}
-  m_Name: FixedFPS
+  m_Script: {fileID: 11500000, guid: b429845b0452c2b4bb3700dabc19cd00, type: 3}
+  m_Name: CollisionText
   m_EditorClassIdentifier: 
-  value: 120
+  value: 

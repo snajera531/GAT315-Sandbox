@@ -13,9 +13,9 @@ public class Body : MonoBehaviour
 
     public enum eType
     {
-        Dynamic,
+        Static,
         Kinematic, 
-        Static
+        Dynamic
     }
 
     public Shape shape;
@@ -34,7 +34,8 @@ public class Body : MonoBehaviour
 
     public void AddForce(Vector2 force, eForceMode forceMode = eForceMode.Force)
     {
-        if (Type != eType.Static) return;
+        if (Type == eType.Static) return;
+
         switch (forceMode)
         {
             case eForceMode.Force:
@@ -55,6 +56,6 @@ public class Body : MonoBehaviour
     {
         if (Type != eType.Dynamic) return;
 
-        Acceleration += World.Instance.Gravity + (Force / Mass);
+        Acceleration += World.Instance.Gravity + (Force * InverseMass);
     }
 }

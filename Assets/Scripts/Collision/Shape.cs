@@ -11,13 +11,13 @@ public abstract class Shape : MonoBehaviour
         Box
     }
 
-    public abstract eType Type { get; }
     public abstract float Mass { get; }
     public abstract float Size { get; set; }
+    public abstract eType Type { get; }
 
-    public float Density { get; set; } = 1;
-
+    public AABB aabb { get => new AABB(transform.position, Vector2.one * Size); }
     public Color Color { set => spriteRenderer.material.color = value; }
+    public float Density { get; set; } = 1;
 
     SpriteRenderer spriteRenderer;
     private void Awake()

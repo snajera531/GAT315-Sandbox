@@ -51,9 +51,10 @@ public class VectorField : Force
         int x = Mathf.FloorToInt(position.x);
         int y = Mathf.FloorToInt(position.y);
 
-        if (x < 0 || x > grid.GetLength(0) || y < 0 || y > grid.GetLength(1)) return;
+        if (x < 0 || x >= grid.GetLength(0) || y < 0 || y >= grid.GetLength(1)) return;
 
         Vector2 force = grid[x, y] * forceMagnitude;
+        Debug.Log(force);
         body.AddForce(force, Body.eForceMode.Acceleration);
     }
 

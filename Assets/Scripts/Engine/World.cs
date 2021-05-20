@@ -5,12 +5,15 @@ using UnityEngine;
 public class World : MonoBehaviour
 {
     public BoolData collision;
+    public BoolData collisionDebug;
     public BoolData simulate;
     public BoolData wrap;
+    public BroadPhaseTypeData bpTypeData;
     public FloatData gravitation;
     public FloatData gravity;
     public FloatData fixedFPS;
     public StringData fpsText;
+    public StringData collisionText;
     public VectorField vectorField;
 
     static World instance;
@@ -25,6 +28,8 @@ public class World : MonoBehaviour
     public List<SpringForce> Springs { get; set; } = new List<SpringForce>();
 
     AABB aabb;
+    BroadPhase broadPhase;
+    BroadPhase[] broadPhases = { new NullBroadPhase(), new Quadtree(), new BVH() };
     float timeAccumulator = 0;
     float fpsAverage = 0;
     float smoothing = 0.975f;
@@ -44,6 +49,9 @@ public class World : MonoBehaviour
 
         fpsAverage = (fpsAverage * smoothing) + (fps * (1.0f - smoothing));
         fpsText.value = "FPS: " + fpsAverage.ToString("F1");
+
+        broadPhase = broadPhases[bpTypeData.index];
+
         Springs.ForEach(spring => spring.Draw());
 
         if (!simulate.value) return;
@@ -56,22 +64,36 @@ public class World : MonoBehaviour
         //Bodies.ForEach(body => body.shape.Color = Color.magenta);
 
         timeAccumulator += Time.deltaTime;
-        while(timeAccumulator >= fixedDeltaTime)
+        while(timeAccumulator >= 0.01f)
         {
-            Bodies.ForEach(body => body.Step(fixedDeltaTime));
-            Bodies.ForEach(body => Integrator.SemiImplicitEuler(body, fixedDeltaTime));
+            Bodies.ForEach(body => body.Step(Time.deltaTime));
+            Bodies.ForEach(body => Integrator.SemiImplicitEuler(body, Time.deltaTime));
 
-            Bodies.ForEach(body => body.shape.Color = Color.magenta);
             if (collision)
             {
-                Collision.CreateContacts(Bodies, out List<Contact> contacts);
-                contacts.ForEach(contact => { contact.bodyA.shape.Color = Color.green; contact.bodyB.shape.Color = Color.green; });
-                ContactSolver.Resolve(contacts);
-            }
+                Bodies.ForEach(body => body.shape.Color = Color.magenta);
+                broadPhase.Build(aabb, Bodies);
 
+                Collision.CreateBroadPhaseContacts(broadPhase, Bodies, out List<Contact> contacts);
+                Collision.CreateNarrowPhaseContacts(ref contacts);
+                contacts.ForEach(contact => { contact.bodyA.shape.Color = Color.green; contact.bodyB.shape.Color = Color.green; });
+                
+                ContactSolver.Resolve(contacts);
+
+                if (collisionDebug)
+                {
+                    contacts.ForEach(contact => { contact.bodyA.shape.Color = Color.red; contact.bodyB.shape.Color = Color.red; });
+                }
+            }
 
             timeAccumulator -= fixedDeltaTime;
         }
+
+        if (collisionDebug)
+        {
+            broadPhase.Draw();
+        }
+        collisionText.value = "BP " + BroadPhase.potentialColCount.ToString();
 
         if (wrap)
         {
