@@ -5,6 +5,7 @@ using UnityEngine;
 public class InverseKinematic : MonoBehaviour
 {
     public InverseKinematicSegment original;
+    public Transform anchor;
     public Transform target;
     public int count = 5;
     [Range(0.1f, 3.0f)] public float length = 1;
@@ -34,6 +35,17 @@ public class InverseKinematic : MonoBehaviour
 
             Vector2 position = (segment.parent) ? segment.parent.start : (Vector2)target.position;
             segment.Follow(position);
+        }
+
+        if (anchor)
+        {
+            int baseIndex = segments.Count - 1;
+            segments[baseIndex].start = anchor.position;
+
+            for(int i = baseIndex - 1; i >= 0; i--)
+            {
+                segments[i].start = segments[i + 1].end;
+            }
         }
     }
 }
